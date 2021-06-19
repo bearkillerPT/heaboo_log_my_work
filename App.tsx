@@ -48,22 +48,22 @@ function AppWrapper() {
     <NavigationContainer >
       <Stack.Navigator>
         {Platform.OS !== "web" &&
-        <Stack.Screen name="Home" component={App} options={{
-          title: 'A trabalhar',
-          headerStyle: {
-            backgroundColor: '#000',
-          },
-          headerTintColor: '#FFF'
-        }} />
+          <Stack.Screen name="Home" component={App} options={{
+            title: 'A trabalhar',
+            headerStyle: {
+              backgroundColor: '#000',
+            },
+            headerTintColor: '#FFF'
+          }} />
         }
         {Platform.OS === "web" &&
-        <Stack.Screen name="Home" component={WebApp} options={{
-          title: 'A trabalhar',
-          headerStyle: {
-            backgroundColor: '#000'
-          },
-          headerTintColor: '#FFF',
-        }} />
+          <Stack.Screen name="Home" component={WebApp} options={{
+            title: 'A trabalhar',
+            headerStyle: {
+              backgroundColor: '#000'
+            },
+            headerTintColor: '#FFF',
+          }} />
         }
         <Stack.Screen name="Admin" component={Admin} options={{
           title: 'Admin',
@@ -159,44 +159,38 @@ function WebApp({ navigation }) {
       <ScrollView style={styles.web_usersContainer}>
         {
           users.map((user, index) => {
-            const [visible, setVisible] = useState(false);
             const [buttonsState, setButtonsState] = useState(false);
             const [userState, setUserState] = useState(user);
-            const showDialog = () => {
-              setVisible(true);
-            };
-
-            const handleCancel = () => {
-              setVisible(false);
-            };
             const [insertingPasswd, setInsertingPasswd] = useState(false)
             return (
               <View style={styles.web_userView} key={index}>
                 {insertingPasswd &&
                   <View style={styles.web_passwdInputContainer}>
-                  <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setInputText(text)}>
-                  </TextInput>
-                  <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
-                    <View style={styles.web_cancelInput} >
-                      <Text style={styles.web_usernameText}>Cancelar</Text>
+                    <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setInputText(text)}>
+                    </TextInput>
+                    <View style={{display: 'flex', flex: 1}}>
+                      <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
+                        <View style={styles.web_cancelInput} >
+                          <Text style={styles.web_buttonText}>Cancelar</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
+                        if (user.password == inputText)
+                          navigation.push('Admin')
+                        setInsertingPasswd(false);
+                      }}>
+                        <View style={styles.web_confirmInput} >
+                          <Text style={styles.web_buttonText}>Confirmar</Text>
+                        </View>
+                      </TouchableOpacity>
                     </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
-                    if(user.password == inputText)
-                     navigation.push('Admin')
-                    setInsertingPasswd(false);
-                  }}>
-                    <View style={styles.web_confirmInput} >
-                      <Text style={styles.web_usernameText}>Confirmar</Text>
-                    </View>
-                  </TouchableOpacity>
                   </View>
                 }
                 {!insertingPasswd &&
                   <TouchableOpacity style={[styles.web_buttonContainer, {
                     backgroundColor: buttonsState ? "green" : "red"
                   }]} onPress={() => {
-                    if(user.admin)
+                    if (user.admin)
                       insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
                     //buttonsState ? setButtonsState(false) : setButtonsState(true);
                   }}>
@@ -255,22 +249,21 @@ const styles = StyleSheet.create({
 
 
   web_appContainer: {
-    display: 'flex',
-    flexGrow: 1,
     backgroundColor: '#000',
+    flexGrow: 1,
     justifyContent: 'center',
     alignContent: 'center',
     maxHeight: 800
   },
   web_usersContainer: {
-    display: 'flex',
-    flexGrow: 1,
     backgroundColor: '#000',
   },
   web_userView: {
+    display: 'flex',
+    flex: 1,
     padding: 10,
-    justifyContent: 'space-around',
-    alignContent: 'space-around',
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
   },
   web_usernameText: {
     color: "#fff",
@@ -295,40 +288,47 @@ const styles = StyleSheet.create({
   web_logStateContainer: {
   },
   web_passwdInput: {
-    height: 40, 
-    width: 700,
-    borderColor: 'white', 
+    flex: 1,
+    borderColor: 'white',
     borderWidth: 1,
     color: '#FFF',
     fontSize: 20,
     marginTop: 5
   },
   web_passwdInputContainer: {
-    justifyContent: 'space-around',
-    alignContent: 'space-around',
-    flex: 1,
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
     flexDirection: 'row',
+    display: 'flex'
   },
   web_cancelInputContainer: {
+    flex: 1,
     backgroundColor: 'red',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
     paddingHorizontal: 40,
-    paddingVertical : 6
+    paddingVertical: 6,
   },
   web_cancelInput: {
-    backgroundColor: 'red',
+    backgroundColor: 'red'
+
   },
   web_confirmInputContainer: {
+    flex: 1,
     backgroundColor: 'green',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
     paddingHorizontal: 40,
-    paddingVertical : 6
+    paddingVertical: 6,
   },
   web_confirmInput: {
-    backgroundColor: 'green',
-  }
+    backgroundColor: 'green'
+  },
+  web_buttonText: {
+    color: "#fff",
+    textAlign: 'center',
+    fontSize: 12
+  },
 });
