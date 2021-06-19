@@ -6,6 +6,14 @@
   "short_name": "log-my-workz",
   "start_url": "/?utm_source=web_app_manifest",
   "orientation": "portrait",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "http://play.google.com/store/apps/details?id=com.bearkiller.logmyworkz",
+      "id": "com.bearkiller.logmyworkz"
+    }
+  ],
+  "prefer_related_applications": true,
   "icons": [
     {
       "src": "\\pwa\\chrome-icon\\chrome-icon-144.png",
