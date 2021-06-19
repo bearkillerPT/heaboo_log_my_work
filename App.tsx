@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, Alert, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
+import { Platform, Alert, TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
 import App from './screens/app';
-import WebApp from './screens/webapp';
 import Dialog from 'react-native-dialog';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -59,9 +58,9 @@ function AppWrapper() {
         <Stack.Screen name="Home" component={WebApp} options={{
           title: 'A trabalhar',
           headerStyle: {
-            backgroundColor: '#000',
+            backgroundColor: '#000'
           },
-          headerTintColor: '#FFF'
+          headerTintColor: '#FFF',
         }} />
         }
         <Stack.Screen name="Admin" component={Admin} options={{
@@ -116,7 +115,7 @@ function AdminUser({ route }) {
   );
 }
 
-export function Admin({ navigation }) {
+function Admin({ navigation }) {
   const [users, setUsers] = useState({});
   firebase.database().ref('users/').once('value').then((res) => {
     setUsers(res.val());
@@ -150,7 +149,70 @@ export function Admin({ navigation }) {
 }
 
 
+function WebApp({ navigation }) {
+  const [inputText, setInputText] = useState("");
+  return (
+    <View style={styles.web_appContainer}>
+      <StatusBar />
+      <ScrollView style={styles.web_usersContainer}>
+        {
+          users.map((user, index) => {
+            const [visible, setVisible] = useState(false);
+            const [buttonsState, setButtonsState] = useState(false);
+            const [userState, setUserState] = useState(user);
+            const showDialog = () => {
+              setVisible(true);
+            };
 
+            const handleCancel = () => {
+              setVisible(false);
+            };
+            const [insertingPasswd, setInsertingPasswd] = useState(false)
+            return (
+              <View style={styles.web_userView} key={index}>
+                {insertingPasswd &&
+                  <View style={styles.web_passwdInputContainer}>
+                  <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setInputText(text)}>
+                  </TextInput>
+                  <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
+                    <View style={styles.web_cancelInput} >
+                      <Text style={styles.web_usernameText}>Cancelar</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
+                    if(user.password == inputText)
+                     navigation.push('Admin')
+                    setInsertingPasswd(false);
+                  }}>
+                    <View style={styles.web_confirmInput} >
+                      <Text style={styles.web_usernameText}>Confirmar</Text>
+                    </View>
+                  </TouchableOpacity>
+                  </View>
+                }
+                {!insertingPasswd &&
+                  <TouchableOpacity style={[styles.web_buttonContainer, {
+                    backgroundColor: buttonsState ? "green" : "red"
+                  }]} onPress={() => {
+                    if(user.admin)
+                      insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
+                    //buttonsState ? setButtonsState(false) : setButtonsState(true);
+                  }}>
+                    <View>
+                      <Text style={styles.web_usernameText}>{userState.username}</Text>
+                    </View>
+                  </TouchableOpacity>
+                }
+              </View>
+            );
+          })
+        }
+      </ScrollView>
+    </View>
+
+
+  );
+}
 
 
 const styles = StyleSheet.create({
@@ -187,5 +249,81 @@ const styles = StyleSheet.create({
 
   },
   logStateContainer: {
+  },
+
+
+  web_appContainer: {
+    display: 'flex',
+    flexGrow: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignContent: 'center',
+    maxHeight: 800
+  },
+  web_usersContainer: {
+    display: 'flex',
+    flexGrow: 1,
+    backgroundColor: '#000',
+  },
+  web_userView: {
+    padding: 10,
+    justifyContent: 'space-around',
+    alignContent: 'space-around',
+  },
+  web_usernameText: {
+    color: "#fff",
+    textAlign: 'center',
+    fontSize: 30
+  },
+  web_buttonContainer: {
+    padding: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignContent: 'center'
+  },
+  web_timestampView: {
+    padding: 10,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  web_timestampContainer: {
+
+  },
+  web_logStateContainer: {
+  },
+  web_passwdInput: {
+    height: 40, 
+    width: 700,
+    borderColor: 'white', 
+    borderWidth: 1,
+    color: '#FFF',
+    fontSize: 20
+  },
+  web_passwdInputContainer: {
+    justifyContent: 'space-around',
+    alignContent: 'space-around',
+    flex: 1,
+    flexDirection: 'row',
+  },
+  web_cancelInputContainer: {
+    backgroundColor: 'red',
+    alignContent: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical : 6
+  },
+  web_cancelInput: {
+    backgroundColor: 'red',
+  },
+  web_confirmInputContainer: {
+    backgroundColor: 'green',
+    alignContent: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+    paddingVertical : 6
+  },
+  web_confirmInput: {
+    backgroundColor: 'green',
   }
 });
