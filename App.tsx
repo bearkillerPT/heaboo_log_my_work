@@ -298,7 +298,8 @@ const styles = StyleSheet.create({
     borderColor: 'white', 
     borderWidth: 1,
     color: '#FFF',
-    fontSize: 20
+    fontSize: 20,
+    marginTop: 5
   },
   web_passwdInputContainer: {
     justifyContent: 'space-around',
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     alignContent: 'center',
     justifyContent: 'center',
+    borderRadius: 15,
     paddingHorizontal: 40,
     paddingVertical : 6
   },
@@ -320,6 +322,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'green',
     alignContent: 'center',
     justifyContent: 'center',
+    borderRadius: 15,
     paddingHorizontal: 40,
     paddingVertical : 6
   },
