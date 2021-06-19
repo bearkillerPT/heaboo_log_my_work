@@ -7,21 +7,21 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 export var firebase = require('firebase/app');
 require('firebase/database');
-export const users = [
+export const users : [{ username: string password: string; admin: boolean} = [
   {
-    "username": "João Cabeça de Melão",
-    "password": "1234",
+    "username": "Francisco",
+    "password": "2378",
     "admin": false
   },
   {
-    "username": "Pedro el Chefe",
-    "password": "1234",
+    "username": "Alexandre",
+    "password": "4536",
     "admin": false
   },
 
   {
-    "username": "Rui Teixeira",
-    "password": "1234",
+    "username": "Administrador",
+    "password": "6748",
     "admin": true
   },
 ]
