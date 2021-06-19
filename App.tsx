@@ -41,6 +41,8 @@ firebase.initializeApp(firebaseConfig);
 
 const Stack = createStackNavigator();
 
+console.log("Heroku sucks sometimes...");
+
 function AppWrapper() {
   return (
     <NavigationContainer >
