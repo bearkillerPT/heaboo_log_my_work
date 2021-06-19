@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
-import Dialog from "react-native-dialog";
+import { Platform, Alert, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
+import App from './screens/app';
+import WebApp from './screens/webapp';
+import Dialog from 'react-native-dialog';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-var firebase = require('firebase/app');
+export var firebase = require('firebase/app');
 require('firebase/database');
-
-const users = [
+export const users = [
   {
     "username": "João Cabeça de Melão",
     "password": "1234",
@@ -45,6 +46,7 @@ function AppWrapper() {
   return (
     <NavigationContainer >
       <Stack.Navigator>
+        {Platform.OS !== "web" &&
         <Stack.Screen name="Home" component={App} options={{
           title: 'A trabalhar',
           headerStyle: {
@@ -52,6 +54,16 @@ function AppWrapper() {
           },
           headerTintColor: '#FFF'
         }} />
+        }
+        {Platform.OS === "web" &&
+        <Stack.Screen name="Home" component={WebApp} options={{
+          title: 'A trabalhar',
+          headerStyle: {
+            backgroundColor: '#000',
+          },
+          headerTintColor: '#FFF'
+        }} />
+        }
         <Stack.Screen name="Admin" component={Admin} options={{
           title: 'Admin',
           headerStyle: {
@@ -104,7 +116,7 @@ function AdminUser({ route }) {
   );
 }
 
-function Admin({ navigation }) {
+export function Admin({ navigation }) {
   const [users, setUsers] = useState({});
   firebase.database().ref('users/').once('value').then((res) => {
     setUsers(res.val());
@@ -137,78 +149,9 @@ function Admin({ navigation }) {
     );
 }
 
-function App({ navigation }) {
-  const [inputText, setInputText] = useState("");
 
 
-  return (
-    <View style={styles.appContainer}>
-      <StatusBar />
-      <ScrollView style={styles.usersContainer}>
-        {
-          users.map((user, index) => {
-            const [visible, setVisible] = useState(false);
-            const [buttonsState, setButtonsState] = useState(false);
-            const [userState, setUserState] = useState(user);
-            const showDialog = () => {
-              setVisible(true);
-            };
 
-            const handleCancel = () => {
-              setVisible(false);
-            };
-            return (
-              <View style={styles.userView} key={index}>
-                <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: buttonsState ? "green" : "red"
-                }]} onPress={showDialog}>
-                  <View>
-                    <Text style={styles.usernameText}>{userState.username}</Text>
-                    <Dialog.Container visible={visible} >
-                      <Dialog.Title>Inserir password</Dialog.Title>
-                      <Dialog.Description>
-                        Insira a sua password para começar!
-                      </Dialog.Description>
-                      <Dialog.Input secureTextEntry onChangeText={(text) => { setInputText(text) }}></Dialog.Input>
-                      <Dialog.Button label="OK" onPress={() => {
-                        if (inputText == userState.password)
-                          if (buttonsState) {
-                            setButtonsState(false);
-                            const current_timestamp = Date.now();
-                            firebase.database().ref('users/' + userState.username + '/' + current_timestamp).set(
-                              'Saiu'
-                            );
-                          }
-                          else {
-                            if (userState.admin) {
-                              navigation.push('Admin');
-                            }
-                            else {
-                              setButtonsState(true);
-                              const current_timestamp = Date.now();
-                              firebase.database().ref('users/' + userState.username + '/' + current_timestamp).set(
-                                'Entrou'
-                              );
-                            }
-
-                          }
-                        setInputText("");
-                        handleCancel();
-                      }} />
-                      <Dialog.Button label="Cancel" onPress={handleCancel} />
-                    </Dialog.Container>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            );
-          })
-        }
-      </ScrollView>
-    </View>
-
-
-  );
-}
 
 const styles = StyleSheet.create({
   appContainer: {
