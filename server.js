@@ -2,7 +2,7 @@ const express = require('express');
 const { Server } = require('ws');
 
 const PORT = process.env.PORT || 8080;
-const APPINDEX = './web-build/index.html';
+const APPINDEX = 'web-build/index.html';
 
 const server = express()
   .use(express.static('web-build'))
