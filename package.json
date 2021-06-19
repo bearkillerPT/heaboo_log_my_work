@@ -2,10 +2,6 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "node server.js",
-<<<<<<< HEAD
-=======
-
->>>>>>> acb21d98ea10ed1fe5977ebcef85b20a19fff728
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -21,11 +17,7 @@
     "expo-status-bar": "~1.0.4",
     "expo-updates": "~0.5.4",
     "express": "^4.17.1",
-<<<<<<< HEAD
     "firebase": "7.9.0",
-=======
-    "firebase": "8.2.3",
->>>>>>> acb21d98ea10ed1fe5977ebcef85b20a19fff728
     "global": "^4.4.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
