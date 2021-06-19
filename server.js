@@ -1,6 +1,6 @@
 const express = require('express');
 const { Server } = require('ws');
-
+const path = require('path')
 const PORT = process.env.PORT || 8080;
 const APPINDEX = 'web-build/index.html';
 

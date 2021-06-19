@@ -26,7 +26,12 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "headers": {
+        "/**": {
+          "Content-Security-Policy": "default-src 'self'; script-src https://static.ads-twitter.com https://www.google-analytics.com; img-src 'self' https://s3.amazonaws.com https://twitter.com https://pbs.twimg.com; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; frame-ancestors 'none';"
+        }
+      }
     }
   }
 }
