@@ -2,12 +2,11 @@ const express = require('express');
 const { Server } = require('ws');
 const path = require('path')
 const PORT = process.env.PORT || 8080;
-const APPINDEX = 'web-build/index.html';
+const APPINDEX = './web-build/index.html';
 const server = express()
-  .use(express.static('web-build'))
+  .use(express.static('./web-build'))
   .get('/', (req, res) => res.sendFile(APPINDEX, { root: __dirname }))
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
-express().set('strict routing', true);
 
 const wss = new Server({ server });
 
