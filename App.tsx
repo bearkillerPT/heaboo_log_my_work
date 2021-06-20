@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 export var firebase = require('firebase/app');
 require('firebase/database');
-export const users : [{ username: string password: string; admin: boolean} = [
+export const users = [
   {
     "username": "Francisco",
     "password": "2378",
@@ -49,7 +49,7 @@ function AppWrapper() {
       <Stack.Navigator>
         {Platform.OS !== "web" &&
           <Stack.Screen name="Home" component={App} options={{
-            title: 'A trabalhar',
+            title: 'Registo produção Hoterway',
             headerStyle: {
               backgroundColor: '#000',
             },
@@ -58,15 +58,17 @@ function AppWrapper() {
         }
         {Platform.OS === "web" &&
           <Stack.Screen name="Home" component={WebApp} options={{
-            title: 'A trabalhar',
+            title: 'Registo produção Hoterway',
+            headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
-              backgroundColor: '#000'
+              backgroundColor: '#000',
             },
             headerTintColor: '#FFF',
           }} />
         }
         <Stack.Screen name="Admin" component={Admin} options={{
           title: 'Admin',
+          headerTitleStyle: { alignSelf: 'center' },
           headerStyle: {
             backgroundColor: '#000',
           },
@@ -74,6 +76,7 @@ function AppWrapper() {
         }} />
         <Stack.Screen name="AdminUser" component={AdminUser} options={{
           title: 'Admin',
+          headerTitleStyle: { alignSelf: 'center' },
           headerStyle: {
             backgroundColor: '#000',
           },
@@ -188,7 +191,7 @@ function WebApp({ navigation }) {
                 }
                 {!insertingPasswd &&
                   <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: buttonsState ? "green" : "red"
+                    backgroundColor: user.admin ? "#4D4E4F" : buttonsState ? "green" : "red"
                   }]} onPress={() => {
                     if (user.admin)
                       insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
