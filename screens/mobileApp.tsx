@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
 import Dialog from 'react-native-dialog';
 import { firebase, users } from '../App'
 export default function App({ navigation }) {
   const [inputText, setInputText] = useState("");
-
-
   return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -26,7 +24,7 @@ export default function App({ navigation }) {
             return (
               <View style={styles.userView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: buttonsState ? "green" : "red"
+                  backgroundColor: user.admin ? "#4D4E4F" : buttonsState ? "green" : "red"
                 }]} onPress={showDialog}>
                   <View>
                     <Text style={styles.usernameText}>{userState.username}</Text>
@@ -35,7 +33,7 @@ export default function App({ navigation }) {
                       <Dialog.Description>
                         Insira a sua password para começar!
                       </Dialog.Description>
-                      <Dialog.Input secureTextEntry onChangeText={(text) => { setInputText(text) }}></Dialog.Input>
+                      <Dialog.Input secureTextEntry onChangeText={(text) => { setInputText(text) }} keyboardType='number-pad'></Dialog.Input>
                       <Dialog.Button label="OK" onPress={() => {
                         if (inputText == userState.password)
                           if (buttonsState) {

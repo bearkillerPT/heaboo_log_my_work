@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import { Platform, Alert, TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
-import App from './screens/app';
-import Dialog from 'react-native-dialog';
+import App from './screens/mobileApp';
+import WebApp from './screens/webApp';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 export var firebase = require('firebase/app');
@@ -21,7 +21,7 @@ export const users = [
 
   {
     "username": "Administrador",
-    "password": "6748",
+    "password": "6748", 
     "admin": true
   },
 ]
@@ -37,11 +37,13 @@ const firebaseConfig = {
   measurementId: "G-86K99VSDRW"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}else {
+  firebase.app(); // if already initialized, use that one
+}
 
 const Stack = createStackNavigator();
-
-console.log("Heroku sucks sometimes...");
 
 function AppWrapper() {
   return (
@@ -89,7 +91,7 @@ function AppWrapper() {
 
 export default AppWrapper;
 
-function AdminUser({ route }) {
+export function AdminUser({ route }) {
   return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -120,7 +122,7 @@ function AdminUser({ route }) {
   );
 }
 
-function Admin({ navigation }) {
+export function Admin({ navigation }) {
   const [users, setUsers] = useState({});
   firebase.database().ref('users/').once('value').then((res) => {
     setUsers(res.val());
@@ -152,67 +154,6 @@ function Admin({ navigation }) {
       </View>
     );
 }
-
-
-function WebApp({ navigation }) {
-  const [inputText, setInputText] = useState("");
-  return (
-    <View style={styles.web_appContainer}>
-      <StatusBar />
-      <ScrollView style={styles.web_usersContainer}>
-        {
-          users.map((user, index) => {
-            const [buttonsState, setButtonsState] = useState(false);
-            const [userState, setUserState] = useState(user);
-            const [insertingPasswd, setInsertingPasswd] = useState(false)
-            return (
-              <View style={styles.web_userView} key={index}>
-                {insertingPasswd &&
-                  <View style={styles.web_passwdInputContainer}>
-                    <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setInputText(text)}>
-                    </TextInput>
-                    <View style={{display: 'flex', flex: 1}}>
-                      <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
-                        <View style={styles.web_cancelInput} >
-                          <Text style={styles.web_buttonText}>Cancelar</Text>
-                        </View>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
-                        if (user.password == inputText)
-                          navigation.push('Admin')
-                        setInsertingPasswd(false);
-                      }}>
-                        <View style={styles.web_confirmInput} >
-                          <Text style={styles.web_buttonText}>Confirmar</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                }
-                {!insertingPasswd &&
-                  <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: user.admin ? "#4D4E4F" : buttonsState ? "green" : "red"
-                  }]} onPress={() => {
-                    if (user.admin)
-                      insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
-                    //buttonsState ? setButtonsState(false) : setButtonsState(true);
-                  }}>
-                    <View>
-                      <Text style={styles.web_usernameText}>{userState.username}</Text>
-                    </View>
-                  </TouchableOpacity>
-                }
-              </View>
-            );
-          })
-        }
-      </ScrollView>
-    </View>
-
-
-  );
-}
-
 
 const styles = StyleSheet.create({
   appContainer: {
