@@ -27,19 +27,18 @@ export default function WebApp({navigation, route}) {
                         </View>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
-                        
                           firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
                             .then( ()=> {
                               if(users[user].admin)
                                 navigation.push("Admin")
-                              else{
-                                firebase.database().ref("users/" + user + "/logs/" + Date.now()).set(
-                                  buttonsState ? "Saiu" : "Entrou" 
-                                );
-                                buttonsState ? setButtonsState(false) :  setButtonsState(true);
+                              //else{
+                              //  firebase.database().ref("users/" + user + "/logs/" + Date.now()).set(
+                              //    buttonsState ? "Saiu" : "Entrou" 
+                              //  );
+                              //  buttonsState ? setButtonsState(false) :  setButtonsState(true);
   
                                 setInsertingPasswd(false); 
-                              }
+                              //}
                             })
                             .catch((res)=>{console.log(res)});
                     }} >
