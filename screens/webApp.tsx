@@ -1,17 +1,18 @@
-import {users} from '../app';
-import React, { useState } from 'react';
+import firebase from 'firebase';
+import {AppStateContext} from '../App';
+import React, { useState, useContext } from 'react';
 import { TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 
-export default function WebApp({ navigation }) {
-  const [inputText, setInputText] = useState("");
+export default function WebApp({navigation, route}) {
+  const users = useContext(AppStateContext);
   return (
     <View style={styles.web_appContainer}>
       <StatusBar />
       <ScrollView style={styles.web_usersContainer}>
         {
-          users.map((user, index) => {
+         Object.keys(users).map((user, index) => {
             const [buttonsState, setButtonsState] = useState(false);
-            const [userState, setUserState] = useState(user);
+            const [inputText, setInputText] = useState("");
             const [insertingPasswd, setInsertingPasswd] = useState(false)
             return (
               <View style={styles.web_userView} key={index}>
@@ -26,10 +27,22 @@ export default function WebApp({ navigation }) {
                         </View>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
-                        if (user.password == inputText)
-                          navigation.push('Admin')
-                        setInsertingPasswd(false);
-                      }}>
+                        
+                          firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
+                            .then( ()=> {
+                              if(users[user].admin)
+                                navigation.push("Admin")
+                              else{
+                                firebase.database().ref("users/" + user + "/logs/" + Date.now()).set(
+                                  buttonsState ? "Saiu" : "Entrou" 
+                                );
+                                buttonsState ? setButtonsState(false) :  setButtonsState(true);
+  
+                                setInsertingPasswd(false); 
+                              }
+                            })
+                            .catch((res)=>{console.log(res)});
+                    }} >
                         <View style={styles.web_confirmInput} >
                           <Text style={styles.web_buttonText}>Confirmar</Text>
                         </View>
@@ -39,13 +52,12 @@ export default function WebApp({ navigation }) {
                 }
                 {!insertingPasswd &&
                   <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: user.admin ? "#4D4E4F" : buttonsState ? "green" : "red"
+                    backgroundColor: users[user].admin ? "#4D4E4F" : buttonsState ? "green" : "red"
                   }]} onPress={() => {
-                    if (user.admin)
                       insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
                   }}>
                     <View>
-                      <Text style={styles.web_usernameText}>{userState.username}</Text>
+                      <Text style={styles.web_usernameText}>{user}</Text>
                     </View>
                   </TouchableOpacity>
                 }

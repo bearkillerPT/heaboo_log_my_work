@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
-//import firebase from 'firebase/app';
+import firebase from 'firebase';
+import {AppStateContext} from '../App';
 import Dialog from 'react-native-dialog';
-import { firebase, users } from '../App'
+
+
+
 export default function App({ navigation }) {
   const [inputText, setInputText] = useState("");
+  const users = useContext(AppStateContext);
   return (
     <View style={styles.appContainer}>
       <StatusBar />
       <ScrollView style={styles.usersContainer}>
-        {
-          users.map((user, index) => {
+        { 
+          Object.keys(users).map((user, index) => {
             const [visible, setVisible] = useState(false);
             const [buttonsState, setButtonsState] = useState(false);
             const [userState, setUserState] = useState(user);
@@ -24,10 +28,10 @@ export default function App({ navigation }) {
             return (
               <View style={styles.userView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: user.admin ? "#4D4E4F" : buttonsState ? "green" : "red"
+                  backgroundColor: users[user].admin ? "#4D4E4F" : buttonsState ? "green" : "red"
                 }]} onPress={showDialog}>
                   <View>
-                    <Text style={styles.usernameText}>{userState.username}</Text>
+                    <Text style={styles.usernameText}>{user}</Text>
                     <Dialog.Container visible={visible} >
                       <Dialog.Title>Inserir password</Dialog.Title>
                       <Dialog.Description>
@@ -35,29 +39,31 @@ export default function App({ navigation }) {
                       </Dialog.Description>
                       <Dialog.Input secureTextEntry onChangeText={(text) => { setInputText(text) }} keyboardType='number-pad'></Dialog.Input>
                       <Dialog.Button label="OK" onPress={() => {
-                        if (inputText == userState.password)
-                          if (buttonsState) {
-                            setButtonsState(false);
-                            const current_timestamp = Date.now();
-                            firebase.database().ref('users/' + userState.username + '/' + current_timestamp).set(
-                              'Saiu'
-                            );
-                          }
-                          else {
-                            if (userState.admin) {
-                              navigation.push('Admin');
-                            }
-                            else {
-                              setButtonsState(true);
-                              const current_timestamp = Date.now();
-                              firebase.database().ref('users/' + userState.username + '/' + current_timestamp).set(
-                                'Entrou'
+                        firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
+                          .then(()=>{
+                            if (buttonsState) {
+                              setButtonsState(false);
+                              firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
+                                'Saiu'
                               );
                             }
-
-                          }
-                        setInputText("");
-                        handleCancel();
+                            else {
+                              if (users[user].admin) {
+                                navigation.push('Admin');
+                              }
+                              else {
+                                setButtonsState(true);
+                                firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
+                                  'Entrou'
+                                );
+                              }
+  
+                            }
+                          setInputText("");
+                          handleCancel();
+                          })
+                          .catch((res)=>{console.log(res)});
+                         
                       }} />
                       <Dialog.Button label="Cancel" onPress={handleCancel} />
                     </Dialog.Container>

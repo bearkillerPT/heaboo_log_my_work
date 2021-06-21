@@ -1,30 +1,15 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Platform, Alert, TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
 import App from './screens/mobileApp';
 import WebApp from './screens/webApp';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-export var firebase = require('firebase/app');
-require('firebase/database');
-export const users = [
-  {
-    "username": "Francisco",
-    "password": "2378",
-    "admin": false
-  },
-  {
-    "username": "Alexandre",
-    "password": "4536",
-    "admin": false
-  },
+import { createContext } from 'react';
+import firebase from 'firebase'
+//export var firebase = require('firebase/app');
+//require('firebase/database');
 
-  {
-    "username": "Administrador",
-    "password": "6748", 
-    "admin": true
-  },
-]
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9MV-PgCXfWhnGt-FRHlVIzlvUuRhVmRc",
@@ -39,70 +24,101 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
-}else {
+} else {
   firebase.app(); // if already initialized, use that one
 }
 
 const Stack = createStackNavigator();
 
-function AppWrapper() {
+export const AppStateContext = React.createContext({});
+export default function AppWrapper() {
+  const [users, setUsers] = useState();
+  useEffect(() => {
+     firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
+  }
+    , []);
+  if(!users) return(<View></View>);
   return (
-    <NavigationContainer >
-      <Stack.Navigator>
-        {Platform.OS !== "web" &&
-          <Stack.Screen name="Home" component={App} options={{
-            title: 'Registo produção Hoterway',
+    <AppStateContext.Provider value={users}>
+      <NavigationContainer >
+        <Stack.Navigator>
+          {Platform.OS !== "web" &&
+            <Stack.Screen name="Home" component={App} options={{
+              title: 'Registo produção Hoterway',
+              headerStyle: {
+                backgroundColor: '#000',
+              },
+              headerTintColor: '#FFF'
+            }} />
+          }
+          {Platform.OS === "web" &&
+            <Stack.Screen name="Home" component={WebApp} options={{
+              title: 'Registo produção Hoterway',
+              headerTitleStyle: { alignSelf: 'center' },
+              headerStyle: {
+                backgroundColor: '#000',
+              },
+              headerTintColor: '#FFF',
+            }} />
+          }
+          <Stack.Screen name="Admin" component={Admin} options={{
+            title: 'Admin',
+            headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
               backgroundColor: '#000',
             },
             headerTintColor: '#FFF'
           }} />
-        }
-        {Platform.OS === "web" &&
-          <Stack.Screen name="Home" component={WebApp} options={{
-            title: 'Registo produção Hoterway',
+          <Stack.Screen name="AdminUser" component={AdminUser} options={{
+            title: 'Admin',
             headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
               backgroundColor: '#000',
             },
-            headerTintColor: '#FFF',
+            headerTintColor: '#FFF'
           }} />
-        }
-        <Stack.Screen name="Admin" component={Admin} options={{
-          title: 'Admin',
-          headerTitleStyle: { alignSelf: 'center' },
-          headerStyle: {
-            backgroundColor: '#000',
-          },
-          headerTintColor: '#FFF'
-        }} />
-        <Stack.Screen name="AdminUser" component={AdminUser} options={{
-          title: 'Admin',
-          headerTitleStyle: { alignSelf: 'center' },
-          headerStyle: {
-            backgroundColor: '#000',
-          },
-          headerTintColor: '#FFF'
-        }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppStateContext.Provider>
   );
 }
 
-export default AppWrapper;
-
 export function AdminUser({ route }) {
+  
+  const [users, setUsers] = useState();
+  useEffect(() => {
+     firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
+  }
+    , []);
+  if(!users) return(
+    <View style={styles.appContainer}>
+      <StatusBar />
+      <View style={styles.timestampView}>
+      <Text style={styles.usernameText}>Loading...</Text>
+      </View>
+    </View>
+  );
+  const username = route.params.username;
+  const user = users[username];
+  if(!user.logs) return(
+    <View style={styles.appContainer}>
+      <StatusBar />
+      <View style={styles.timestampView}>
+      <Text style={styles.usernameText}>Não existem logs para o user {username}!</Text>
+      </View>
+    </View>
+  );
   return (
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.userView}>
-        <Text style={styles.usernameText}>{route.params.username}</Text>
+        <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
-          Object.keys(route.params.user).map((timestamp, index) => {
+          Object.keys(user.logs).map((timestamp, index) => {
             return (
               <View style={styles.timestampView} key={index}>
                 <View style={styles.logStateContainer}>
-                  <Text style={styles.usernameText}>{route.params.user[timestamp]}</Text>
+                  <Text style={styles.usernameText}>{user.logs[timestamp]}</Text>
                 </View>
                 <View style={styles.timestampContainer}>
                   <Text style={styles.usernameText}>
@@ -123,10 +139,7 @@ export function AdminUser({ route }) {
 }
 
 export function Admin({ navigation }) {
-  const [users, setUsers] = useState({});
-  firebase.database().ref('users/').once('value').then((res) => {
-    setUsers(res.val());
-  });
+  const users = useContext(AppStateContext);
   if (users == null)
     return (
       <View style={styles.appContainer}>
@@ -143,7 +156,7 @@ export function Admin({ navigation }) {
             return (
               <View style={styles.timestampView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer]} onPress={() => {
-                  navigation.push('AdminUser', { username, user: users[username] })
+                  navigation.push('AdminUser', { username })
                 }}>
                   <Text style={styles.usernameText}>{username}</Text>
                 </TouchableOpacity>
