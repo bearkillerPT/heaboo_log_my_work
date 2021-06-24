@@ -17,13 +17,16 @@ export default function WebApp({navigation, route}) {
             return (
               <View style={styles.web_userView} key={index}>
                 {insertingPasswd &&
-                  <View style={styles.web_passwdInputContainer}>
+                  <View style={styles.web_buttonContainerAndInput}>
+                    <View style={styles.web_passwdInputContainer}>
                     <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setInputText(text)}>
                     </TextInput>
+                    
+                  </View>
                     <View style={{ display: 'flex', flex: 1 }}>
                       <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
                         <View style={styles.web_cancelInput} >
-                          <Text style={styles.web_buttonText}>Cancelar</Text>
+                          <Text style={styles.web_buttonText}  numberOfLines={1} >Cancelar</Text>
                         </View>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
@@ -43,11 +46,12 @@ export default function WebApp({navigation, route}) {
                             .catch((res)=>{console.log(res)});
                     }} >
                         <View style={styles.web_confirmInput} >
-                          <Text style={styles.web_buttonText}>Confirmar</Text>
+                          <Text style={styles.web_buttonText}  numberOfLines={1} >Confirmar</Text>
                         </View>
                       </TouchableOpacity>
                     </View>
                   </View>
+                  
                 }
                 {!insertingPasswd &&
                   <TouchableOpacity style={[styles.web_buttonContainer, {
@@ -76,10 +80,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignContent: 'center',
-    maxHeight: 800
   },
   web_usersContainer: {
     backgroundColor: '#000',
+    padding: 10,
   },
   web_userView: {
     display: 'flex',
@@ -94,10 +98,18 @@ const styles = StyleSheet.create({
     fontSize: 30
   },
   web_buttonContainer: {
+    flex : 1,
     padding: 20,
     borderRadius: 10,
     justifyContent: 'center',
     alignContent: 'center'
+  },
+  web_buttonContainerAndInput: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: 20,
+    justifyContent: 'space-between',
+    alignContent: 'space-between'
   },
   web_timestampView: {
     padding: 10,
@@ -113,45 +125,46 @@ const styles = StyleSheet.create({
   web_passwdInput: {
     flex: 1,
     borderColor: 'white',
+    borderRadius: 10,
     borderWidth: 1,
     color: '#FFF',
     fontSize: 20,
-    marginTop: 5
   },
   web_passwdInputContainer: {
     justifyContent: 'space-between',
     alignContent: 'space-between',
     flexDirection: 'row',
-    display: 'flex'
+    flex : 1
   },
   web_cancelInputContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 2
+  },
+  web_cancelInput: {
     flex: 1,
     backgroundColor: 'red',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
-    paddingHorizontal: 40,
-    paddingVertical: 6,
-  },
-  web_cancelInput: {
-    backgroundColor: 'red'
+
 
   },
   web_confirmInputContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 2
+  },
+  web_confirmInput: {
     flex: 1,
     backgroundColor: 'green',
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
-    paddingHorizontal: 40,
-    paddingVertical: 6,
-  },
-  web_confirmInput: {
-    backgroundColor: 'green'
   },
   web_buttonText: {
     color: "#fff",
     textAlign: 'center',
-    fontSize: 12
+    fontSize: 20
   },
 });

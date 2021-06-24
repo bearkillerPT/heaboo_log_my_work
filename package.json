@@ -19,7 +19,6 @@
     "express": "^4.17.1",
     "firebase": "8.2.3",
     "firebase-admin": "^9.9.0",
-    "global": "^4.4.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
