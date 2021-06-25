@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 import firebase from 'firebase';
 import {AppStateContext} from '../App';
@@ -16,8 +16,14 @@ export default function App({ navigation }) {
         { 
           Object.keys(users).map((user, index) => {
             const [visible, setVisible] = useState(false);
-            const [buttonsState, setButtonsState] = useState(false);
-            const [userState, setUserState] = useState(user);
+            const [buttonState, setButtonState] = useState(false);
+            useEffect(() => {
+              if(users[user].logs) {
+                users[user].logs[Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)]] == "Entrou" ? setButtonState(true) : setButtonState(false);
+                console.log(Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)])
+
+              }
+            }, [])
             const showDialog = () => {
               setVisible(true);
             };
@@ -28,7 +34,7 @@ export default function App({ navigation }) {
             return (
               <View style={styles.userView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: users[user].admin ? "#4D4E4F" : buttonsState ? "green" : "red"
+                  backgroundColor: users[user].admin ? "#4D4E4F" : (buttonState ? "green" : "red")
                 }]} onPress={showDialog}>
                   <View>
                     <Text style={styles.usernameText}>{user}</Text>
@@ -41,8 +47,8 @@ export default function App({ navigation }) {
                       <Dialog.Button label="OK" onPress={() => {
                         firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
                           .then(()=>{
-                            if (buttonsState) {
-                              setButtonsState(false);
+                            if (buttonState) {
+                              setButtonState(false);
                               firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
                                 'Saiu'
                               );
@@ -52,7 +58,7 @@ export default function App({ navigation }) {
                                 navigation.push('Admin');
                               }
                               else {
-                                setButtonsState(true);
+                                setButtonState(true);
                                 firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
                                   'Entrou'
                                 );

@@ -1,6 +1,6 @@
 import firebase from 'firebase';
 import { AppStateContext } from '../App';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 
 export default function WebApp({ navigation, route }) {
@@ -11,9 +11,15 @@ export default function WebApp({ navigation, route }) {
       <ScrollView style={styles.web_usersContainer}>
         {
           Object.keys(users).map((user, index) => {
-            const [buttonsState, setButtonsState] = useState(false);
             const [inputText, setInputText] = useState("");
-            const [insertingPasswd, setInsertingPasswd] = useState(false)
+            const [insertingPasswd, setInsertingPasswd] = useState(false);
+            const [buttonState, setButtonState] = useState(false);   
+            useEffect(() => {
+              if(users[user].logs) {
+                users[user].logs[Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)]] == "Entrou" ? setButtonState(true) : setButtonState(false);
+              console.log(Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)])
+              }
+            }, [])        
             return (
               <View style={styles.web_userView} key={index}>
                 {insertingPasswd &&
@@ -56,7 +62,7 @@ export default function WebApp({ navigation, route }) {
                 {!insertingPasswd &&
                   <View style={styles.web_buttonContainerContainer}>
                     <TouchableOpacity style={[styles.web_buttonContainer, {
-                      backgroundColor: users[user].admin ? "#4D4E4F" : buttonsState ? "green" : "red"
+                      backgroundColor: users[user].admin ? "#4D4E4F" : buttonState ? "green" : "red"
                     }]} onPress={() => {
                       insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
                     }}>
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
     alignContent: 'center'
   },
   web_buttonContainerContainer: {
-    
+
     display: 'flex',
     flexDirection: 'row',
     padding: 11.5,
