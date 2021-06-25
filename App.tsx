@@ -34,10 +34,10 @@ export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
   const [users, setUsers] = useState();
   useEffect(() => {
-     firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
+    firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
   }
     , []);
-  if(!users) return(<View></View>);
+  if (!users) return (<View></View>);
   return (
     <AppStateContext.Provider value={users}>
       <NavigationContainer >
@@ -84,27 +84,26 @@ export default function AppWrapper() {
 }
 
 export function AdminUser({ route }) {
-  
+
   const [users, setUsers] = useState();
   useEffect(() => {
-     firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
+    firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
   }
     , []);
-  if(!users) return(
+  if (!users) return (
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.timestampView}>
-      <Text style={styles.usernameText}>Loading...</Text>
+        <Text style={styles.usernameText}>Loading...</Text>
       </View>
     </View>
   );
   const username = route.params.username;
-  const user = users[username];
-  if(!user.logs) return(
+  if (!users[username].logs) return (
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.timestampView}>
-      <Text style={styles.usernameText}>Não existem logs para o user {username}!</Text>
+        <Text style={styles.usernameText}>Não existem logs para o user {username}!</Text>
       </View>
     </View>
   );
@@ -114,21 +113,32 @@ export function AdminUser({ route }) {
       <View style={styles.userView}>
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
-          Object.keys(user.logs).map((timestamp, index) => {
+          Object.keys(users[username].logs).map((timestamp, index) => {
             return (
-              <View style={styles.timestampView} key={index}>
-                <View style={styles.logStateContainer}>
-                  <Text style={styles.usernameText}>{user.logs[timestamp]}</Text>
+              <View key={index}>
+                <View style={styles.timestampView} >
+                  <View style={styles.logStateContainer}>
+                    <Text style={styles.usernameText}>{users[username].logs[timestamp]}</Text>
+                  </View>
+                  <View style={styles.timestampContainer}>
+                    <Text style={styles.usernameText}>
+                      {new Date(parseInt(timestamp)).toDateString()}
+                    </Text>
+                    <Text style={styles.usernameText}>
+                      {new Date(parseInt(timestamp)).toLocaleTimeString()}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.timestampContainer}>
-                  <Text style={styles.usernameText}>
-                    {new Date(parseInt(timestamp)).toDateString()}
-                  </Text>
-                  <Text style={styles.usernameText}>
-                    {new Date(parseInt(timestamp)).toLocaleTimeString()}
-                  </Text>
-                </View>
+                {users[username].logs[timestamp] == "Saiu" &&
+                  <View style={styles.timestampDiffView}>
+                    <Text style={styles.usernameText}>
+                    Tempo de trabalho (minutos): {new Date(parseInt(timestamp) - parseInt(Object.keys(users[username].logs)[index - 1])).toLocaleTimeString()}
+                    </Text>
+                  </View>
+                }
+
               </View>
+
             );
           }
           )
@@ -197,6 +207,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'
+  },
+  timestampDiffView: {
+    padding: 10,
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center'
   },
   timestampContainer: {
 
