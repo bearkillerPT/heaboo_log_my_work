@@ -17,9 +17,8 @@ export default function WebApp({ navigation, route }) {
             useEffect(() => {
               if(users[user].logs) {
                 users[user].logs[Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)]] == "Entrou" ? setButtonState(true) : setButtonState(false);
-              console.log(Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)])
               }
-            }, [])        
+            }, [users])        
             return (
               <View style={styles.web_userView} key={index}>
                 {insertingPasswd &&

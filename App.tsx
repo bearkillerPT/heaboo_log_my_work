@@ -34,7 +34,7 @@ export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
   const [users, setUsers] = useState();
   useEffect(() => {
-    firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
+    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); console.log(res.val())});
   }
     , []);
   if (!users) return (<View></View>);

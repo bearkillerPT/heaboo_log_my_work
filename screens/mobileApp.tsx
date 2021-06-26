@@ -20,10 +20,8 @@ export default function App({ navigation }) {
             useEffect(() => {
               if(users[user].logs) {
                 users[user].logs[Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)]] == "Entrou" ? setButtonState(true) : setButtonState(false);
-                console.log(Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)])
-
               }
-            }, [])
+            }, [users])
             const showDialog = () => {
               setVisible(true);
             };
