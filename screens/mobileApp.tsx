@@ -10,9 +10,9 @@ export default function App({ navigation }) {
   const [inputText, setInputText] = useState("");
   const users = useContext(AppStateContext);
   return (
-    <View style={styles.appContainer}>
+    <View style={styles.appContainer} >
       <StatusBar />
-      <ScrollView style={styles.usersContainer}>
+      <ScrollView style={styles.usersContainer} keyboardShouldPersistTaps={'handled'}>
         { 
           Object.keys(users).map((user, index) => {
             const [visible, setVisible] = useState(false);
