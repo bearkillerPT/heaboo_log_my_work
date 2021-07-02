@@ -34,7 +34,9 @@ export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
   const [users, setUsers] = useState();
   useEffect(() => {
-    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); console.log(res.val())});
+    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); console.log(res.val()) });
+
+
   }
     , []);
   if (!users) return (<View></View>);
@@ -84,12 +86,7 @@ export default function AppWrapper() {
 }
 
 export function AdminUser({ route }) {
-
-  const [users, setUsers] = useState();
-  useEffect(() => {
-    firebase.database().ref("users").once('value').then((res) => { setUsers(res.val()) })
-  }
-    , []);
+  const users = useContext(AppStateContext);
   if (!users) return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -114,6 +111,10 @@ export function AdminUser({ route }) {
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
           Object.keys(users[username].logs).map((timestamp, index) => {
+            const interval = Math.abs(parseInt(timestamp) -  parseInt(Object.keys(users[username].logs)[index - 1]));
+            const hours = Math.floor(interval / 3.6e6);
+            const minutes = Math.floor(interval / 6e4) % 60;
+            const seconds = Math.floor(interval / 1000) % 60 ;
             return (
               <View key={index}>
                 <View style={styles.timestampView} >
@@ -129,10 +130,10 @@ export function AdminUser({ route }) {
                     </Text>
                   </View>
                 </View>
-                {users[username].logs[timestamp] == "Saiu" &&
+                {users[username].logs[timestamp] == "Saiu" && 
                   <View style={styles.timestampDiffView}>
                     <Text style={styles.usernameText}>
-                    Tempo de trabalho (minutos): {new Date(parseInt(timestamp) - parseInt(Object.keys(users[username].logs)[index - 1])).toLocaleTimeString()}
+                      Tempo de trabalho (hh : mm : ss) - {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds} 
                     </Text>
                   </View>
                 }
