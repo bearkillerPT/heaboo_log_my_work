@@ -6,7 +6,7 @@ import WebApp from './screens/webApp';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createContext } from 'react';
-import firebaseConfig from './firebaseConfig';
+import { firebaseConfig } from './firebaseConfig';
 import firebase from 'firebase'
 //export var firebase = require('firebase/app');
 //require('firebase/database');
@@ -24,7 +24,7 @@ export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
   const [users, setUsers] = useState();
   useEffect(() => {
-    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); console.log(res.val()) });
+    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); });
 
 
   }
@@ -61,8 +61,16 @@ export default function AppWrapper() {
             },
             headerTintColor: '#FFF'
           }} />
-          <Stack.Screen name="AdminUser" component={AdminUser} options={{
-            title: 'Admin',
+          <Stack.Screen name="AdminUserDays" component={AdminUserDays} options={{
+            title: 'Dias de Trabalho',
+            headerTitleStyle: { alignSelf: 'center' },
+            headerStyle: {
+              backgroundColor: '#000',
+            },
+            headerTintColor: '#FFF'
+          }} />
+          <Stack.Screen name="AdminUserDay" component={AdminUserDay} options={{
+            title: 'Log do Dia',
             headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
               backgroundColor: '#000',
@@ -75,7 +83,7 @@ export default function AppWrapper() {
   );
 }
 
-export function AdminUser({ route }) {
+export function AdminUserDays({ navigation, route }) {
   const users = useContext(AppStateContext);
   if (!users) return (
     <View style={styles.appContainer}>
@@ -94,6 +102,57 @@ export function AdminUser({ route }) {
       </View>
     </View>
   );
+  const timestamps = Object.keys(users[username].logs)
+  let lastDay = "0";
+  const daysArray = [];
+  for (let timestamp of timestamps) {
+    const lastDayDate = new Date(parseInt(lastDay))
+    const timestampDate = new Date(parseInt(timestamp));
+
+    if (timestampDate.getDay() != lastDayDate.getDay() ||
+      timestampDate.getMonth() != lastDayDate.getMonth() ||
+      timestampDate.getFullYear() != lastDayDate.getFullYear()) {
+      lastDay = timestamp;
+      daysArray.push(timestampDate)
+    }
+  }
+  return (
+    <View style={styles.appContainer}>
+      <StatusBar />
+      <View style={styles.userView}>
+        <Text style={styles.usernameText}>{username}</Text>
+        <ScrollView style={styles.usersContainer}>{
+          daysArray.map((day, index) => {
+            return (
+              <View style={styles.web_buttonContainerContainer} key={index}>
+                <TouchableOpacity style={[styles.web_buttonContainer]} onPress={() => {
+                  navigation.push("AdminUserDay", { username, day: day.getTime() })
+                }}>
+                  <View>
+                    <Text style={styles.web_usernameText}>{day.toLocaleDateString()}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            );
+          })
+        }</ScrollView>
+      </View>
+    </View>
+  );
+}
+
+export function AdminUserDay({ route }) {
+  const users = useContext(AppStateContext);
+  if (!users) return (
+    <View style={styles.appContainer}>
+      <StatusBar />
+      <View style={styles.timestampView}>
+        <Text style={styles.usernameText}>Loading...</Text>
+      </View>
+    </View>
+  );
+  const username = route.params.username;
+  const day = new Date(route.params.day);
   return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -101,10 +160,14 @@ export function AdminUser({ route }) {
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
           Object.keys(users[username].logs).map((timestamp, index) => {
-            const interval = Math.abs(parseInt(timestamp) -  parseInt(Object.keys(users[username].logs)[index - 1]));
+            const interval = Math.abs(parseInt(timestamp) - parseInt(Object.keys(users[username].logs)[index - 1]));
             const hours = Math.floor(interval / 3.6e6);
             const minutes = Math.floor(interval / 6e4) % 60;
-            const seconds = Math.floor(interval / 1000) % 60 ;
+            const seconds = Math.floor(interval / 1000) % 60;
+            const timestampDate = new Date(parseInt(timestamp));
+            if (timestampDate.getDay() === day.getDay() &&
+              timestampDate.getMonth() === day.getMonth() &&
+              timestampDate.getFullYear() === day.getFullYear());
             return (
               <View key={index}>
                 <View style={styles.timestampView} >
@@ -120,10 +183,13 @@ export function AdminUser({ route }) {
                     </Text>
                   </View>
                 </View>
-                {users[username].logs[timestamp] == "Saiu" && 
+                {users[username].logs[timestamp] == "Saiu" &&
                   <View style={styles.timestampDiffView}>
-                    <Text style={styles.usernameText}>
-                      Tempo de trabalho (hh : mm : ss) - {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds} 
+                    <Text style={styles.workHoursText} >
+                      Tempo de trabalho (hh : mm : ss)
+                    </Text>
+                    <Text style={styles.workHoursText} >
+                      {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds}
                     </Text>
                   </View>
                 }
@@ -152,19 +218,22 @@ export function Admin({ navigation }) {
     return (
       <View style={styles.appContainer}>
         <StatusBar />
-        <ScrollView style={styles.usersContainer}>{
-          Object.keys(users).map((username, index) => {
-            return (
-              <View style={styles.timestampView} key={index}>
-                <TouchableOpacity style={[styles.buttonContainer]} onPress={() => {
-                  navigation.push('AdminUser', { username })
-                }}>
-                  <Text style={styles.usernameText}>{username}</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          })
-        }</ScrollView>
+        <View style={styles.userView}>
+
+          <ScrollView style={styles.usersContainer}>{
+            Object.keys(users).map((username, index) => {
+              return (
+                <View style={styles.web_buttonContainerContainer} key={index}>
+                  <TouchableOpacity style={[styles.web_buttonContainer]} onPress={() => {
+                    navigation.push('AdminUserDays', { username })
+                  }}>
+                    <Text style={styles.web_usernameText}>{username}</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })
+          }</ScrollView>
+        </View>
       </View>
     );
 }
@@ -201,8 +270,8 @@ const styles = StyleSheet.create({
   },
   timestampDiffView: {
     padding: 10,
-    flex: 1,
-    flexDirection: 'row',
+    display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center'
   },
   timestampContainer: {
@@ -295,4 +364,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12
   },
+  workHoursText: {
+    color: "#fff",
+    textAlign: 'center',
+  }
 });
