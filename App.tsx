@@ -6,21 +6,11 @@ import WebApp from './screens/webApp';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createContext } from 'react';
+import firebaseConfig from './firebaseConfig';
 import firebase from 'firebase'
 //export var firebase = require('firebase/app');
 //require('firebase/database');
 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA9MV-PgCXfWhnGt-FRHlVIzlvUuRhVmRc",
-  authDomain: "log-my-work-8db34.firebaseapp.com",
-  databaseURL: "https://log-my-work-8db34-default-rtdb.firebaseio.com",
-  projectId: "log-my-work-8db34",
-  storageBucket: "log-my-work-8db34.appspot.com",
-  messagingSenderId: "721021340350",
-  appId: "1:721021340350:web:75b15661f04266d863ecef",
-  measurementId: "G-86K99VSDRW"
-};
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
