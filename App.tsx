@@ -56,6 +56,7 @@ export default function AppWrapper() {
           <Stack.Screen name="Admin" component={Admin} options={{
             title: 'Admin',
             headerTitleStyle: { alignSelf: 'center' },
+            headerBackTitle: 'Logout',
             headerStyle: {
               backgroundColor: '#000',
             },
@@ -125,7 +126,9 @@ export function AdminUserDays({ navigation, route }) {
           daysArray.map((day, index) => {
             return (
               <View style={styles.web_buttonContainerContainer} key={index}>
-                <TouchableOpacity style={[styles.web_buttonContainer]} onPress={() => {
+                  <TouchableOpacity style={[styles.web_buttonContainer, {
+                    backgroundColor: "darkorchid"
+                  }]} onPress={() => {
                   navigation.push("AdminUserDay", { username, day: day.getTime() })
                 }}>
                   <View>
@@ -184,7 +187,11 @@ export function AdminUserDay({ route }) {
                   </View>
                 </View>
                 {users[username].logs[timestamp] == "Saiu" &&
-                  <View style={styles.timestampDiffView}>
+                  <View style={[styles.timestampDiffView, {
+                    borderBottomWidth: 10,
+                    borderBottomColor: 'darkorchid',
+                    
+                  }]}>
                     <Text style={styles.workHoursText} >
                       Tempo de trabalho (hh : mm : ss)
                     </Text>
@@ -221,13 +228,21 @@ export function Admin({ navigation }) {
         <View style={styles.userView}>
 
           <ScrollView style={styles.usersContainer}>{
-            Object.keys(users).map((username, index) => {
+            
+            Object.keys(users).filter((username)=>{
+              return !users[username].admin;
+            }).map((username, index) => {
+              console.log(users[username].admin)
               return (
                 <View style={styles.web_buttonContainerContainer} key={index}>
-                  <TouchableOpacity style={[styles.web_buttonContainer]} onPress={() => {
+                  <TouchableOpacity style={[styles.web_buttonContainer, {
+                    backgroundColor: "darkorchid"
+                  }]} onPress={() => {
                     navigation.push('AdminUserDays', { username })
                   }}>
-                    <Text style={styles.web_usernameText}>{username}</Text>
+                    <View>
+                      <Text style={styles.web_usernameText}>{username}</Text>
+                    </View>
                   </TouchableOpacity>
                 </View>
               );
@@ -304,10 +319,17 @@ const styles = StyleSheet.create({
     fontSize: 30
   },
   web_buttonContainer: {
+    flex: 1,
     padding: 20,
     borderRadius: 10,
     justifyContent: 'center',
     alignContent: 'center'
+  },
+  web_buttonContainerContainer: {
+
+    display: 'flex',
+    flexDirection: 'row',
+    padding: 11.5,
   },
   web_timestampView: {
     padding: 10,
