@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Platform, Alert, TextInput, StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
+import { Platform, Alert, TextInput, StyleSheet, KeyboardAvoidingView, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
 //import firebase from 'firebase/app';
 import App from './screens/mobileApp';
 import WebApp from './screens/webApp';
@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createContext } from 'react';
 import { firebaseConfig } from './firebaseConfig';
 import firebase from 'firebase'
+import {Restart} from 'fiction-expo-restart';
 //export var firebase = require('firebase/app');
 //require('firebase/database');
 
@@ -22,13 +23,17 @@ const Stack = createStackNavigator();
 
 export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
-  const [users, setUsers] = useState();
+  const [users, setUsers] = useState(null);
   useEffect(() => {
-    firebase.database().ref("users").on('value', (res) => { setUsers(res.val()); });
+    firebase.database().ref("users").on('value', (res) => { 
+      console.log(users)
+      if(users != null && res.val() != null && (Object.keys(users).length != 0 && Object.keys(res.val()).length != Object.keys(users).length))
+        Restart(); 
+      else
+        setUsers(res.val());
+      });
 
-
-  }
-    , []);
+  }, []);
   if (!users) return (<View></View>);
   return (
     <AppStateContext.Provider value={users}>
@@ -78,6 +83,14 @@ export default function AppWrapper() {
             },
             headerTintColor: '#FFF'
           }} />
+          <Stack.Screen name="AdminAddUser" component={AdminAddUser} options={{
+              title: 'Adicionar User',
+              headerTitleStyle: { alignSelf: 'center' },
+              headerStyle: {
+                backgroundColor: '#000',
+              },
+              headerTintColor: '#FFF'
+            }} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppStateContext.Provider>
@@ -126,9 +139,10 @@ export function AdminUserDays({ navigation, route }) {
           daysArray.map((day, index) => {
             return (
               <View style={styles.web_buttonContainerContainer} key={index}>
-                  <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: "darkorchid"
-                  }]} onPress={() => {
+                <TouchableOpacity style={[styles.web_buttonContainer, {
+                  backgroundColor: "#4c1300",
+                  flex: 1
+                }]} onPress={() => {
                   navigation.push("AdminUserDay", { username, day: day.getTime() })
                 }}>
                   <View>
@@ -155,14 +169,20 @@ export function AdminUserDay({ route }) {
     </View>
   );
   const username = route.params.username;
-  const day = new Date(route.params.day);
+  const day = new Date(parseInt(route.params.day));
   return (
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.userView}>
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
-          Object.keys(users[username].logs).map((timestamp, index) => {
+          Object.keys(users[username].logs).filter((timestamp) => {
+            const timestampDate = new Date(parseInt(timestamp));
+            console.log(timestampDate.getDate() + " == " + day.getDate())
+            return ((timestampDate.getDate() == day.getDate() &&
+            timestampDate.getMonth() == day.getMonth() &&
+            timestampDate.getFullYear() == day.getFullYear()) 
+          )}).map((timestamp, index) => {
             const interval = Math.abs(parseInt(timestamp) - parseInt(Object.keys(users[username].logs)[index - 1]));
             const hours = Math.floor(interval / 3.6e6);
             const minutes = Math.floor(interval / 6e4) % 60;
@@ -189,8 +209,8 @@ export function AdminUserDay({ route }) {
                 {users[username].logs[timestamp] == "Saiu" &&
                   <View style={[styles.timestampDiffView, {
                     borderBottomWidth: 10,
-                    borderBottomColor: 'darkorchid',
-                    
+                    borderBottomColor: '#e43a01',
+
                   }]}>
                     <Text style={styles.workHoursText} >
                       Tempo de trabalho (hh : mm : ss)
@@ -225,38 +245,111 @@ export function Admin({ navigation }) {
     return (
       <View style={styles.appContainer}>
         <StatusBar />
-        <View style={styles.userView}>
-
+        <View>
           <ScrollView style={styles.usersContainer}>{
-            
-            Object.keys(users).filter((username)=>{
+            Object.keys(users).filter((username) => {
               return !users[username].admin;
             }).map((username, index) => {
               console.log(users[username].admin)
               return (
-                <View style={styles.web_buttonContainerContainer} key={index}>
+                <View style={styles.userView} key={index}>
                   <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: "darkorchid"
+                    backgroundColor: "#4c1300"
                   }]} onPress={() => {
                     navigation.push('AdminUserDays', { username })
                   }}>
                     <View>
-                      <Text style={styles.web_usernameText}>{username}</Text>
+                      <Text style={styles.usernameText}>{username}</Text>
                     </View>
                   </TouchableOpacity>
                 </View>
               );
             })
-          }</ScrollView>
+          }
+            {Platform.OS !== "web" &&
+              <View style={styles.userView}>
+                <TouchableOpacity style={[styles.web_buttonContainer, {
+                  backgroundColor: "#e43a01",
+                }]} onPress={() => {
+                  navigation.push('AdminAddUser')
+                }}>
+                  <View>
+                    <Text style={styles.usernameText}>Adicionar User</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>}
+          </ScrollView>
         </View>
       </View>
     );
+}
+
+function AdminAddUser() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <View style={styles.registerContainer}>
+        <View style={styles.userView}>
+          <Text style={styles.usernameText}>Introduza as credenciais:</Text>
+        </View>
+        <View style={{
+          display: 'flex'
+        }}>
+          <View style={[{
+            paddingHorizontal: 20,
+            display: 'flex',
+            flexDirection: 'column',
+          }]}>
+            <Text style={styles.usernameText}>Nome</Text>
+            <TextInput style={styles.web_passwdInput} onChangeText={(text) => setUsername(text)}>
+            </TextInput>
+          </View>
+          <View style={[{
+            paddingHorizontal: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            paddingBottom : 10
+          }]}>
+            <Text style={styles.usernameText}>Password</Text>
+            <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setPassword(text)}>
+            </TextInput>
+          </View>
+        </View>
+        <View style={styles.userView}>
+          <TouchableOpacity style={[styles.web_buttonContainer, {
+            backgroundColor: "#e43a01",
+          }]} onPress={() => {
+            if(username !== ""){
+              firebase.auth().createUserWithEmailAndPassword(username + "@log-my-work.pt", password + "99");
+              firebase.database().ref('users/' + username).set({
+                admin: false,
+                uid: null
+              })
+  
+            }
+          }}>
+            <View>
+              <Text style={styles.usernameText}>Adicionar!</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
   appContainer: {
     display: 'flex',
     flexGrow: 1,
+    backgroundColor: '#000',
+  },
+  registerContainer: {
+    flexGrow: 1,
+    display: 'flex',
+    alignContent: 'center',
+    justifyContent: 'center',
     backgroundColor: '#000',
   },
   usersContainer: {
@@ -319,8 +412,7 @@ const styles = StyleSheet.create({
     fontSize: 30
   },
   web_buttonContainer: {
-    flex: 1,
-    padding: 20,
+    padding: 15,
     borderRadius: 10,
     justifyContent: 'center',
     alignContent: 'center'
@@ -343,9 +435,10 @@ const styles = StyleSheet.create({
   web_logStateContainer: {
   },
   web_passwdInput: {
-    flex: 1,
     borderColor: 'white',
     borderWidth: 1,
+    overflow: 'hidden',
+    borderRadius: 10,
     color: '#FFF',
     fontSize: 20,
     marginTop: 5
@@ -353,8 +446,8 @@ const styles = StyleSheet.create({
   web_passwdInputContainer: {
     justifyContent: 'space-between',
     alignContent: 'space-between',
-    flexDirection: 'row',
-    display: 'flex'
+    flexDirection: 'column',
+    display: 'flex',
   },
   web_cancelInputContainer: {
     flex: 1,
