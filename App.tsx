@@ -349,14 +349,15 @@ function AdminAddUser() {
           <TouchableOpacity style={[styles.web_buttonContainer, {
             backgroundColor: done ? "#14CE95" : "#EB5C52",
           }]} onPress={() => {
-            if (username !== "") {
+            if (username !== "" && password.length > 3) {
               firebase.auth().createUserWithEmailAndPassword(username + "@log-my-work.pt", password + "99");
               firebase.database().ref('users/' + username).set({
                 admin: false,
                 uid: null
               })
+              setTimeout(Restart(), 50);
             }
-            setTimeout(Restart(), 50);
+            
 
           }}>
             <View>
