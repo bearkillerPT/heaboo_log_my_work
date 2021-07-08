@@ -32,10 +32,10 @@ export default function App({ navigation }) {
             return (
               <View style={styles.userView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: users[user].admin ? "#4D4E4F" : (buttonState ? "green" : "red")
+                  backgroundColor: users[user].admin ? "#7E7E7E" : buttonState ?   "#14CE95" : "#EB5C52"
                 }]} onPress={showDialog}>
                   <View>
-                    <Text style={styles.usernameText}>{user}</Text>
+                    <Text style={styles.web_usernameText}>{user}</Text>
                     <Dialog.Container visible={visible} >
                       <Dialog.Title>Inserir password</Dialog.Title>
                       <Dialog.Description>
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   usersContainer: {
     display: 'flex',
     flexGrow: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#313131',
   },
   userView: {
     padding: 10,
@@ -101,6 +101,11 @@ const styles = StyleSheet.create({
   usernameText: {
     color: "#fff",
     textAlign: 'center',
+  },
+  web_usernameText: {
+    color: "#fff",
+    textAlign: 'center',
+    fontSize: 30
   },
   buttonContainer: {
     padding: 20,

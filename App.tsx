@@ -4,11 +4,12 @@ import { Platform, Alert, TextInput, StyleSheet, KeyboardAvoidingView, Text, Scr
 import App from './screens/mobileApp';
 import WebApp from './screens/webApp';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import { createContext } from 'react';
 import { firebaseConfig } from './firebaseConfig';
 import firebase from 'firebase'
-import {Restart} from 'fiction-expo-restart';
+import {reloadAsync} from 'expo-updates'
+import { Restart } from 'fiction-expo-restart';
 //export var firebase = require('firebase/app');
 //require('firebase/database');
 
@@ -24,17 +25,18 @@ const Stack = createStackNavigator();
 export const AppStateContext = React.createContext({});
 export default function AppWrapper() {
   const [users, setUsers] = useState(null);
+  const [usersCount, setUsersCount] = useState(0);
   useEffect(() => {
-    firebase.database().ref("users").on('value', (res) => { 
-      console.log(users)
-      if(users != null && res.val() != null && (Object.keys(users).length != 0 && Object.keys(res.val()).length != Object.keys(users).length))
-        Restart(); 
-      else
-        setUsers(res.val());
-      });
+    firebase.database().ref("users").on('value', (res, b) => {
+      if (usersCount == 0) setUsersCount(Object.keys(res.val()).length);
+      setUsers(res.val());
+    });
 
   }, []);
   if (!users) return (<View></View>);
+  console.log(Object.keys(users).length, usersCount)
+  if (Object.keys(users).length != usersCount)
+    Restart();
   return (
     <AppStateContext.Provider value={users}>
       <NavigationContainer >
@@ -43,7 +45,7 @@ export default function AppWrapper() {
             <Stack.Screen name="Home" component={App} options={{
               title: 'Registo produção Hoterway',
               headerStyle: {
-                backgroundColor: '#000',
+                backgroundColor: '#464646',
               },
               headerTintColor: '#FFF'
             }} />
@@ -53,7 +55,7 @@ export default function AppWrapper() {
               title: 'Registo produção Hoterway',
               headerTitleStyle: { alignSelf: 'center' },
               headerStyle: {
-                backgroundColor: '#000',
+                backgroundColor: '#464646',
               },
               headerTintColor: '#FFF',
             }} />
@@ -63,15 +65,22 @@ export default function AppWrapper() {
             headerTitleStyle: { alignSelf: 'center' },
             headerBackTitle: 'Logout',
             headerStyle: {
-              backgroundColor: '#000',
+              backgroundColor: '#464646',
             },
-            headerTintColor: '#FFF'
+            headerTitleContainerStyle: {
+              left: 0, // THIS RIGHT HERE
+            },
+            headerTintColor: '#FFF',
           }} />
           <Stack.Screen name="AdminUserDays" component={AdminUserDays} options={{
             title: 'Dias de Trabalho',
             headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
-              backgroundColor: '#000',
+              backgroundColor: '#464646',
+            },
+            
+            headerTitleContainerStyle: {
+              left: 0, // THIS RIGHT HERE
             },
             headerTintColor: '#FFF'
           }} />
@@ -79,18 +88,26 @@ export default function AppWrapper() {
             title: 'Log do Dia',
             headerTitleStyle: { alignSelf: 'center' },
             headerStyle: {
-              backgroundColor: '#000',
+              backgroundColor: '#464646',
+            },
+            
+            headerTitleContainerStyle: {
+              left: 0, // THIS RIGHT HERE
             },
             headerTintColor: '#FFF'
           }} />
           <Stack.Screen name="AdminAddUser" component={AdminAddUser} options={{
-              title: 'Adicionar User',
-              headerTitleStyle: { alignSelf: 'center' },
-              headerStyle: {
-                backgroundColor: '#000',
-              },
-              headerTintColor: '#FFF'
-            }} />
+            title: 'Adicionar User',
+            headerTitleStyle: { alignSelf: 'center' },
+            headerStyle: {
+              backgroundColor: '#464646',
+            },
+            
+            headerTitleContainerStyle: {
+              left: 0, // THIS RIGHT HERE
+            },
+            headerTintColor: '#FFF'
+          }} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppStateContext.Provider>
@@ -123,7 +140,7 @@ export function AdminUserDays({ navigation, route }) {
     const lastDayDate = new Date(parseInt(lastDay))
     const timestampDate = new Date(parseInt(timestamp));
 
-    if (timestampDate.getDay() != lastDayDate.getDay() ||
+    if (timestampDate.getDate() != lastDayDate.getDate() ||
       timestampDate.getMonth() != lastDayDate.getMonth() ||
       timestampDate.getFullYear() != lastDayDate.getFullYear()) {
       lastDay = timestamp;
@@ -140,7 +157,7 @@ export function AdminUserDays({ navigation, route }) {
             return (
               <View style={styles.web_buttonContainerContainer} key={index}>
                 <TouchableOpacity style={[styles.web_buttonContainer, {
-                  backgroundColor: "#4c1300",
+                  backgroundColor: "#EB5C52",
                   flex: 1
                 }]} onPress={() => {
                   navigation.push("AdminUserDay", { username, day: day.getTime() })
@@ -180,19 +197,20 @@ export function AdminUserDay({ route }) {
             const timestampDate = new Date(parseInt(timestamp));
             console.log(timestampDate.getDate() + " == " + day.getDate())
             return ((timestampDate.getDate() == day.getDate() &&
-            timestampDate.getMonth() == day.getMonth() &&
-            timestampDate.getFullYear() == day.getFullYear()) 
-          )}).map((timestamp, index) => {
-            const interval = Math.abs(parseInt(timestamp) - parseInt(Object.keys(users[username].logs)[index - 1]));
+              timestampDate.getMonth() == day.getMonth() &&
+              timestampDate.getFullYear() == day.getFullYear())
+            )
+          }).map((timestamp, index, dayArray) => {
+            const interval = Math.abs(parseInt(timestamp) - parseInt(dayArray[index - 1]));
             const hours = Math.floor(interval / 3.6e6);
             const minutes = Math.floor(interval / 6e4) % 60;
             const seconds = Math.floor(interval / 1000) % 60;
             const timestampDate = new Date(parseInt(timestamp));
-            if (timestampDate.getDay() === day.getDay() &&
+            if (timestampDate.getDate() === day.getDate() &&
               timestampDate.getMonth() === day.getMonth() &&
               timestampDate.getFullYear() === day.getFullYear());
             return (
-              <View key={index}>
+              <View key={index} style={styles.timestampViewContainer}>
                 <View style={styles.timestampView} >
                   <View style={styles.logStateContainer}>
                     <Text style={styles.usernameText}>{users[username].logs[timestamp]}</Text>
@@ -209,7 +227,7 @@ export function AdminUserDay({ route }) {
                 {users[username].logs[timestamp] == "Saiu" &&
                   <View style={[styles.timestampDiffView, {
                     borderBottomWidth: 10,
-                    borderBottomColor: '#e43a01',
+                    borderBottomColor: '#EB5C52',
 
                   }]}>
                     <Text style={styles.workHoursText} >
@@ -234,6 +252,14 @@ export function AdminUserDay({ route }) {
 
 export function Admin({ navigation }) {
   const users = useContext(AppStateContext);
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: ()=>( <HeaderBackButton onPress={ ()=>{
+        firebase.auth().signOut();
+        navigation.goBack();
+      }}/>)
+    });
+  }, [navigation]);
   if (users == null)
     return (
       <View style={styles.appContainer}>
@@ -245,39 +271,41 @@ export function Admin({ navigation }) {
     return (
       <View style={styles.appContainer}>
         <StatusBar />
-        <View>
+        <View style={styles.userView}>
           <ScrollView style={styles.usersContainer}>{
             Object.keys(users).filter((username) => {
               return !users[username].admin;
             }).map((username, index) => {
-              console.log(users[username].admin)
               return (
-                <View style={styles.userView} key={index}>
-                  <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: "#4c1300"
-                  }]} onPress={() => {
-                    navigation.push('AdminUserDays', { username })
-                  }}>
-                    <View>
-                      <Text style={styles.usernameText}>{username}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+                  <View style={styles.web_buttonContainerContainer} key={index}>
+                    <TouchableOpacity style={[styles.web_buttonContainer, {
+                      backgroundColor: "#EB5C52",
+                      flex: 1
+                    }]} onPress={() => {
+                      navigation.push('AdminUserDays', { username })
+                    }}>
+                      <View>
+                        <Text style={styles.web_usernameText}>{username}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
               );
             })
           }
             {Platform.OS !== "web" &&
-              <View style={styles.userView}>
-                <TouchableOpacity style={[styles.web_buttonContainer, {
-                  backgroundColor: "#e43a01",
-                }]} onPress={() => {
-                  navigation.push('AdminAddUser')
-                }}>
-                  <View>
-                    <Text style={styles.usernameText}>Adicionar User</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>}
+                <View style={styles.web_buttonContainerContainer}>
+                  <TouchableOpacity style={[styles.web_buttonContainer, {
+                    backgroundColor: "#14CE95",
+                    flex: 1
+                  }]} onPress={() => {
+                    navigation.push('AdminAddUser')
+                  }}>
+                    <View>
+                      <Text style={styles.web_usernameText}>Adicionar Utilizador</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+            }
           </ScrollView>
         </View>
       </View>
@@ -285,6 +313,7 @@ export function Admin({ navigation }) {
 }
 
 function AdminAddUser() {
+  const [done, setDone] = useState(false)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   return (
@@ -309,7 +338,7 @@ function AdminAddUser() {
             paddingHorizontal: 20,
             display: 'flex',
             flexDirection: 'column',
-            paddingBottom : 10
+            paddingBottom: 10
           }]}>
             <Text style={styles.usernameText}>Password</Text>
             <TextInput style={styles.web_passwdInput} secureTextEntry onChangeText={(text) => setPassword(text)}>
@@ -318,16 +347,17 @@ function AdminAddUser() {
         </View>
         <View style={styles.userView}>
           <TouchableOpacity style={[styles.web_buttonContainer, {
-            backgroundColor: "#e43a01",
+            backgroundColor: done ? "#14CE95" : "#EB5C52",
           }]} onPress={() => {
-            if(username !== ""){
+            if (username !== "") {
               firebase.auth().createUserWithEmailAndPassword(username + "@log-my-work.pt", password + "99");
               firebase.database().ref('users/' + username).set({
                 admin: false,
                 uid: null
               })
-  
             }
+            setTimeout(Restart(), 50);
+
           }}>
             <View>
               <Text style={styles.usernameText}>Adicionar!</Text>
@@ -343,19 +373,18 @@ const styles = StyleSheet.create({
   appContainer: {
     display: 'flex',
     flexGrow: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#313131',
   },
   registerContainer: {
     flexGrow: 1,
     display: 'flex',
     alignContent: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#000',
+    backgroundColor: '#313131',
   },
   usersContainer: {
     display: 'flex',
     flexGrow: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#313131',
   },
   userView: {
     padding: 10,

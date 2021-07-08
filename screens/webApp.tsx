@@ -29,11 +29,6 @@ export default function WebApp({ navigation, route }) {
 
                     </View>
                     <View style={{ display: 'flex', flex: 1 }}>
-                      <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
-                        <View style={styles.web_cancelInput} >
-                          <Text style={styles.web_buttonText} numberOfLines={1} >Cancelar</Text>
-                        </View>
-                      </TouchableOpacity>
                       <TouchableOpacity style={styles.web_confirmInputContainer} onPress={() => {
                         firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
                           .then(() => {
@@ -48,12 +43,17 @@ export default function WebApp({ navigation, route }) {
                             //  buttonState ? setButtonState(false) :  setButtonState(true);
                             //}
                             setInsertingPasswd(false);
-                            
+                            setInputText('');
                           })
                           .catch((res) => { console.log(res) });
                       }} >
                         <View style={styles.web_confirmInput} >
                           <Text style={styles.web_buttonText} numberOfLines={1} >Confirmar</Text>
+                        </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.web_cancelInputContainer} onPress={() => setInsertingPasswd(false)}>
+                        <View style={styles.web_cancelInput} >
+                          <Text style={styles.web_buttonText} numberOfLines={1} >Cancelar</Text>
                         </View>
                       </TouchableOpacity>
                     </View>
@@ -63,7 +63,7 @@ export default function WebApp({ navigation, route }) {
                 {!insertingPasswd &&
                   <View style={styles.web_buttonContainerContainer}>
                     <TouchableOpacity style={[styles.web_buttonContainer, {
-                      backgroundColor: users[user].admin ? "#4D4E4F" : buttonState ? "green" : "red"
+                      backgroundColor: users[user].admin ? "#7E7E7E" : buttonState ?   "#14CE95" : "#EB5C52"
                     }]} onPress={() => {
                       insertingPasswd ? setInsertingPasswd(false) : setInsertingPasswd(true)
                     }}>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
   },
   web_usersContainer: {
-    backgroundColor: '#000',
+    backgroundColor: '#313131',
     padding: 10,
   },
   web_userView: {
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
     borderWidth: 1,
+    backgroundColor: '#252525',
     color: '#FFF',
     fontSize: 20,
   },
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
   },
   web_cancelInput: {
     flex: 1,
-    backgroundColor: 'red',
+    backgroundColor: "#EB5C52", 
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   web_confirmInput: {
     flex: 1,
-    backgroundColor: 'green',
+    backgroundColor: "#14CE95", //
     alignContent: 'center',
     justifyContent: 'center',
     borderRadius: 15,
