@@ -292,7 +292,7 @@ export function Admin({ navigation }) {
               );
             })
           }
-            {Platform.OS !== "web" &&
+            {//Platform.OS !== "web" &&
                 <View style={styles.web_buttonContainerContainer}>
                   <TouchableOpacity style={[styles.web_buttonContainer, {
                     backgroundColor: "#14CE95",
