@@ -50,10 +50,8 @@ export default function App({ navigation }) {
                       <Dialog.Input autoFocus secureTextEntry onChangeText={(text) => {
                         setInputText(text);
                         if (text.length > 3) {
-                          console.log("1")
                           firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", text + "99")
                           .then(() => {
-                            console.log("2")
                             if (buttonState) {
                               setButtonState(false);
                               firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
