@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity } from 'react-native';
+import React, { useState, useContext, useEffect, createRef } from 'react';
+import { StyleSheet, Text, ScrollView, StatusBar, View, TouchableOpacity, InteractionManager } from 'react-native';
 import firebase from 'firebase';
-import {AppStateContext} from '../App';
+import { AppStateContext } from '../App';
 import Dialog from 'react-native-dialog';
 
 
@@ -13,12 +13,12 @@ export default function App({ navigation }) {
     <View style={styles.appContainer} >
       <StatusBar />
       <ScrollView style={styles.usersContainer} keyboardShouldPersistTaps={'handled'}>
-        { 
+        {
           Object.keys(users).map((user, index) => {
             const [visible, setVisible] = useState(false);
             const [buttonState, setButtonState] = useState(false);
             useEffect(() => {
-              if(users[user].logs) {
+              if (users[user].logs) {
                 users[user].logs[Object.keys(users[user].logs)[(Object.keys(users[user].logs).length - 1)]] == "Entrou" ? setButtonState(true) : setButtonState(false);
               }
             }, [users])
@@ -29,10 +29,16 @@ export default function App({ navigation }) {
             const handleCancel = () => {
               setVisible(false);
             };
+            const handleLogin = (user) => {
+              setButtonState(true);
+              firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
+                'Entrou'
+              );
+            }
             return (
               <View style={styles.userView} key={index}>
                 <TouchableOpacity style={[styles.buttonContainer, {
-                  backgroundColor: users[user].admin ? "#7E7E7E" : buttonState ?   "#14CE95" : "#EB5C52"
+                  backgroundColor: users[user].admin ? "#7E7E7E" : buttonState ? "#14CE95" : "#EB5C52"
                 }]} onPress={showDialog}>
                   <View>
                     <Text style={styles.web_usernameText}>{user}</Text>
@@ -41,10 +47,13 @@ export default function App({ navigation }) {
                       <Dialog.Description>
                         Insira a sua password para começar!
                       </Dialog.Description>
-                      <Dialog.Input secureTextEntry onChangeText={(text) => { setInputText(text) }} keyboardType='number-pad'></Dialog.Input>
-                      <Dialog.Button label="OK" onPress={() => {
-                        firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
-                          .then(()=>{
+                      <Dialog.Input autoFocus secureTextEntry onChangeText={(text) => {
+                        setInputText(text);
+                        if (text.length > 3) {
+                          console.log("1")
+                          firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", text + "99")
+                          .then(() => {
+                            console.log("2")
                             if (buttonState) {
                               setButtonState(false);
                               firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
@@ -56,18 +65,41 @@ export default function App({ navigation }) {
                                 navigation.push('Admin');
                               }
                               else {
-                                setButtonState(true);
-                                firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
-                                  'Entrou'
-                                );
+                                handleLogin(user);
                               }
-  
+
                             }
-                          setInputText("");
-                          handleCancel();
+                            setInputText("");
+                            handleCancel();
                           })
-                          .catch((res)=>{console.log(res)});
-                         
+                          .catch((res) => { console.log(res) });
+
+                          
+                        }
+                      }} keyboardType='number-pad'></Dialog.Input>
+                      <Dialog.Button label="OK" onPress={() => {
+                        firebase.auth().signInWithEmailAndPassword(user.toLowerCase() + "@log-my-work.pt", inputText + "99")
+                          .then(() => {
+                            if (buttonState) {
+                              setButtonState(false);
+                              firebase.database().ref('users/' + user + '/logs/' + Date.now()).set(
+                                'Saiu'
+                              );
+                            }
+                            else {
+                              if (users[user].admin) {
+                                navigation.push('Admin');
+                              }
+                              else {
+                                handleLogin(user);
+                              }
+
+                            }
+                            setInputText("");
+                            handleCancel();
+                          })
+                          .catch((res) => { console.log(res) });
+
                       }} />
                       <Dialog.Button label="Cancel" onPress={handleCancel} />
                     </Dialog.Container>
