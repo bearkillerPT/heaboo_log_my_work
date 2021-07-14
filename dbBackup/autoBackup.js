@@ -2,7 +2,7 @@ const { json } = require('body-parser');
 const { white } = require('color-name');
 var firebase = require('firebase-admin');
 var serviceAccount = require('./serviceAccountKey.json');
-
+var { exec } = require('child_process');
 
 
 const sleep = async(ms) =>{
@@ -34,6 +34,7 @@ const doBackup = async () => {
           return
         }
       })
+      exec("git add .; git commit -m 'logs update'; git push;");
     })
 }
 
