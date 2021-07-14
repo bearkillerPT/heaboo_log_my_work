@@ -2,7 +2,7 @@
   "main": "node_modules/expo/AppEntry.js",
   "type": "module",
   "scripts": {
-    "start": "node autoBackup.js",
+    "start": "node autoBackup.js" 
   },
   "dependencies": {
     "firebase": "8.2.3",
