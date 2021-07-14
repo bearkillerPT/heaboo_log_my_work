@@ -60,4 +60,4 @@ const doBackup = async () => {
     
 }
 
-setInterval(doBackup, 5000);
+setInterval(doBackup, 43200000);
