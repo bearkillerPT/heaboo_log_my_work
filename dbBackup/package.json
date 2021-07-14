@@ -1,19 +1,12 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "autoBackup.js",
   "type": "module",
   "scripts": {
-    "start": "node autoBackup.js" 
+    "start": "node autoBackup.js"
   },
   "dependencies": {
-    "firebase": "8.2.3",
     "firebase-admin": "^9.9.0",
-    "react": "16.13.1",
-  },
-  "devDependencies": {
-    "@babel/core": "~7.9.0",
-    "@types/react": "~16.9.35",
-    "@types/react-native": "~0.63.2",
-    "typescript": "~4.0.0"
+    "require": "^2.4.20"
   },
   "private": true
 }

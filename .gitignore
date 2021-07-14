@@ -8,5 +8,6 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 firebaseConfig.js
+dbBackup/firebaseConfig.js
 # macOS
 .DS_Store

@@ -1,5 +1,5 @@
-import firebase from 'firebase';
-import { firebaseConfig } from './firebaseConfig';
+import firebase from 'firebase-admin';
+import {firebaseConfig} from './firebaseConfig.js';
 setTimeout(
   () => {
     const fs = require('fs');
