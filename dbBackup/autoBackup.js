@@ -3,7 +3,7 @@ import { firebaseConfig } from './firebaseConfig';
 setTimeout(
   () => {
     const fs = require('fs');
-    let path =  Date.now().toString() + '.json';
+    let path = "dbBackup/" + Date.now().toString() + '.json';
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     } else {
