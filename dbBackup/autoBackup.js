@@ -3,6 +3,7 @@ const { white } = require('color-name');
 var firebase = require('firebase-admin');
 var serviceAccount = require('./serviceAccountKey.json');
 var { exec } = require('child_process');
+const { stdout } = require('process');
 
 
 const sleep = async(ms) =>{
@@ -34,8 +35,29 @@ const doBackup = async () => {
           return
         }
       })
-      exec("git add .; git commit -m 'logs update'; git push;");
+      exec('git add .', (error, stdout) => {
+        if(error) {
+          console.log(error);
+          return
+        }
+        console.log(stdout)
+      });
+      exec('git commit -m "logs update"', (error, stdout) => {
+        if(error) {
+          console.log(error);
+          return
+        }
+        console.log(stdout)
+      });
+      exec('git push', (error, stdout) => {
+        if(error) {
+          console.log(error);
+          return
+        }
+        console.log(stdout)
+      });
     })
+    
 }
 
-setInterval(doBackup, 43200000);
+setInterval(doBackup, 5000);
