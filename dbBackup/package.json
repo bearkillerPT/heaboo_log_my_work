@@ -1,6 +1,6 @@
 {
   "main": "autoBackup.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node autoBackup.js"
   },
