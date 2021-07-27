@@ -147,6 +147,7 @@ export function AdminUserDays({ navigation, route }) {
       daysArray.push(timestampDate)
     }
   }
+  daysArray.reverse();
   return (
     <View style={styles.appContainer}>
       <StatusBar />
