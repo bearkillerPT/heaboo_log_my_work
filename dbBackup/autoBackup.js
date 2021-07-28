@@ -6,7 +6,7 @@ var { exec } = require('child_process');
 const { stdout } = require('process');
 
 
-const sleep = async(ms) =>{
+const sleep = async (ms) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
@@ -22,7 +22,7 @@ const doBackup = async () => {
   } else {
     firebase.app(); // if already initialized, use that one
   }
-  
+
   const database = firebase.database();
   console.log(database)
 
@@ -35,29 +35,35 @@ const doBackup = async () => {
           return
         }
       })
-      exec('git add .', (error, stdout) => {
-        if(error) {
+      exec('git add .', {
+        cwd: '/home/pi/heaboo_log_my_work'
+      }, (error, stdout) => {
+        if (error) {
           console.log(error);
           return
         }
         console.log(stdout)
       });
-      exec('git commit -m "logs update"', (error, stdout) => {
-        if(error) {
+      exec('git commit -m "logs update"', {
+        cwd: '/home/pi/heaboo_log_my_work'
+      }, (error, stdout) => {
+        if (error) {
           console.log(error);
           return
         }
         console.log(stdout)
       });
-      exec('git push', (error, stdout) => {
-        if(error) {
+      exec('git push', {
+        cwd: '/home/pi/heaboo_log_my_work'
+      }, (error, stdout) => {
+        if (error) {
           console.log(error);
           return
         }
         console.log(stdout)
       });
     })
-    
+
 }
 
 setInterval(doBackup, 43200000);
