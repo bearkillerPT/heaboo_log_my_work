@@ -178,6 +178,7 @@ export function AdminUserDays({ navigation, route }) {
 
 export function AdminUserDay({ route }) {
   const users = useContext(AppStateContext);
+  const [dayTotal, setdayTotal] = useState(0);
   if (!users) return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -192,6 +193,7 @@ export function AdminUserDay({ route }) {
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.userView}>
+        <View>
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
           Object.keys(users[username].logs).filter((timestamp) => {
@@ -226,6 +228,7 @@ export function AdminUserDay({ route }) {
                   </View>
                 </View>
                 {users[username].logs[timestamp] == "Saiu" &&
+                setdayTotal(dayTotal + interval) &&
                   <View style={[styles.timestampDiffView, {
                     borderBottomWidth: 10,
                     borderBottomColor: '#EB5C52',
@@ -241,11 +244,24 @@ export function AdminUserDay({ route }) {
                 }
 
               </View>
-
             );
           }
           )
         }</ScrollView>
+        </View>
+        
+        <View style={[styles.timestampDiffView, {
+                    borderBottomWidth: 10,
+                    borderBottomColor: '#EB5C52',
+
+                  }]}>
+                    <Text style={styles.workHoursText} >
+                      Tempo de trabalho (hh : mm : ss)
+                    </Text>
+                    <Text style={styles.workHoursText} >
+                      {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds}
+                    </Text>
+                  </View>
       </View>
     </View>
   );
