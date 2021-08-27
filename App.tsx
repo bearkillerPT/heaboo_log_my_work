@@ -193,6 +193,7 @@ export function AdminUserDay({ route }) {
     <View style={styles.appContainer}>
       <StatusBar />
       <View style={styles.userView}>
+        <View>
         <Text style={styles.usernameText}>{username}</Text>
         <ScrollView style={styles.usersContainer}>{
           Object.keys(users[username].logs).filter((timestamp) => {
