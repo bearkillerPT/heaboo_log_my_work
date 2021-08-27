@@ -8,7 +8,7 @@ import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack'
 import { createContext } from 'react';
 import { firebaseConfig } from './firebaseConfig';
 import firebase from 'firebase'
-import {reloadAsync} from 'expo-updates'
+import { reloadAsync } from 'expo-updates'
 import { Restart } from 'fiction-expo-restart';
 //export var firebase = require('firebase/app');
 //require('firebase/database');
@@ -78,7 +78,7 @@ export default function AppWrapper() {
             headerStyle: {
               backgroundColor: '#464646',
             },
-            
+
             headerTitleContainerStyle: {
               left: 0, // THIS RIGHT HERE
             },
@@ -90,7 +90,7 @@ export default function AppWrapper() {
             headerStyle: {
               backgroundColor: '#464646',
             },
-            
+
             headerTitleContainerStyle: {
               left: 0, // THIS RIGHT HERE
             },
@@ -102,7 +102,7 @@ export default function AppWrapper() {
             headerStyle: {
               backgroundColor: '#464646',
             },
-            
+
             headerTitleContainerStyle: {
               left: 0, // THIS RIGHT HERE
             },
@@ -178,6 +178,7 @@ export function AdminUserDays({ navigation, route }) {
 
 export function AdminUserDay({ route }) {
   const users = useContext(AppStateContext);
+  let dayTotal = 0;
   if (!users) return (
     <View style={styles.appContainer}>
       <StatusBar />
@@ -207,45 +208,58 @@ export function AdminUserDay({ route }) {
             const minutes = Math.floor(interval / 6e4) % 60;
             const seconds = Math.floor(interval / 1000) % 60;
             const timestampDate = new Date(parseInt(timestamp));
+            if (users[username].logs[timestamp] == "Saiu")
+              dayTotal += interval
             if (timestampDate.getDate() === day.getDate() &&
               timestampDate.getMonth() === day.getMonth() &&
-              timestampDate.getFullYear() === day.getFullYear());
-            return (
-              <View key={index} style={styles.timestampViewContainer}>
-                <View style={styles.timestampView} >
-                  <View style={styles.logStateContainer}>
-                    <Text style={styles.usernameText}>{users[username].logs[timestamp]}</Text>
+              timestampDate.getFullYear() === day.getFullYear())
+              return (
+                <View key={index} style={styles.timestampViewContainer}>
+                  <View style={styles.timestampView} >
+                    <View style={styles.logStateContainer}>
+                      <Text style={styles.usernameText}>{users[username].logs[timestamp]}</Text>
+                    </View>
+                    <View style={styles.timestampContainer}>
+                      <Text style={styles.usernameText}>
+                        {new Date(parseInt(timestamp)).toDateString()}
+                      </Text>
+                      <Text style={styles.usernameText}>
+                        {new Date(parseInt(timestamp)).toLocaleTimeString()}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.timestampContainer}>
-                    <Text style={styles.usernameText}>
-                      {new Date(parseInt(timestamp)).toDateString()}
-                    </Text>
-                    <Text style={styles.usernameText}>
-                      {new Date(parseInt(timestamp)).toLocaleTimeString()}
-                    </Text>
-                  </View>
+                  {users[username].logs[timestamp] == "Saiu" &&
+                    <View style={[styles.timestampDiffView, {
+                      borderBottomWidth: 10,
+                      borderBottomColor: '#EB5C52',
+
+                    }]}>
+                      <Text style={styles.workHoursText} >
+                        Tempo de trabalho (hh : mm : ss)
+                      </Text>
+                      <Text style={styles.workHoursText} >
+                        {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds}
+                      </Text>
+                    </View>
+                  }
+
                 </View>
-                {users[username].logs[timestamp] == "Saiu" &&
-                  <View style={[styles.timestampDiffView, {
-                    borderBottomWidth: 10,
-                    borderBottomColor: '#EB5C52',
-
-                  }]}>
-                    <Text style={styles.workHoursText} >
-                      Tempo de trabalho (hh : mm : ss)
-                    </Text>
-                    <Text style={styles.workHoursText} >
-                      {hours < 10 ? '0' + hours : hours} : {minutes < 10 ? '0' + minutes : minutes} : {seconds < 10 ? '0' + seconds : seconds}
-                    </Text>
-                  </View>
-                }
-
-              </View>
-
-            );
+              );
           }
           )
         }</ScrollView>
+        <View style={[styles.timestampDiffView, {
+          borderTopWidth: 10,
+          borderTopColor: '#EB5C52',
+
+        }]}>
+          <Text style={styles.workHoursText} >
+            Tempo total de trabalho:(hh : mm : ss)
+          </Text>
+          <Text style={styles.workHoursText} >
+            {Math.floor(dayTotal / 3.6e6) < 10 ? '0' + Math.floor(dayTotal / 3.6e6) : Math.floor(dayTotal / 3.6e6)} : {Math.floor(dayTotal / 6e4) % 60 < 10 ? '0' + Math.floor(dayTotal / 6e4) % 60 : Math.floor(dayTotal / 6e4) % 60} : {Math.floor(dayTotal / 1000) % 60 < 10 ? '0' + Math.floor(dayTotal / 1000) % 60 : Math.floor(dayTotal / 1000) % 60}
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -255,10 +269,10 @@ export function Admin({ navigation }) {
   const users = useContext(AppStateContext);
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: ()=>( <HeaderBackButton onPress={ ()=>{
+      headerLeft: () => (<HeaderBackButton onPress={() => {
         firebase.auth().signOut();
         navigation.goBack();
-      }}/>)
+      }} />)
     });
   }, [navigation]);
   if (users == null)
@@ -278,34 +292,34 @@ export function Admin({ navigation }) {
               return !users[username].admin;
             }).map((username, index) => {
               return (
-                  <View style={styles.web_buttonContainerContainer} key={index}>
-                    <TouchableOpacity style={[styles.web_buttonContainer, {
-                      backgroundColor: "#EB5C52",
-                      flex: 1
-                    }]} onPress={() => {
-                      navigation.push('AdminUserDays', { username })
-                    }}>
-                      <View>
-                        <Text style={styles.web_usernameText}>{username}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+                <View style={styles.web_buttonContainerContainer} key={index}>
+                  <TouchableOpacity style={[styles.web_buttonContainer, {
+                    backgroundColor: "#EB5C52",
+                    flex: 1
+                  }]} onPress={() => {
+                    navigation.push('AdminUserDays', { username })
+                  }}>
+                    <View>
+                      <Text style={styles.web_usernameText}>{username}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               );
             })
           }
             {//Platform.OS !== "web" &&
-                <View style={styles.web_buttonContainerContainer}>
-                  <TouchableOpacity style={[styles.web_buttonContainer, {
-                    backgroundColor: "#14CE95",
-                    flex: 1
-                  }]} onPress={() => {
-                    navigation.push('AdminAddUser')
-                  }}>
-                    <View>
-                      <Text style={styles.web_usernameText}>Adicionar Utilizador</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
+              <View style={styles.web_buttonContainerContainer}>
+                <TouchableOpacity style={[styles.web_buttonContainer, {
+                  backgroundColor: "#14CE95",
+                  flex: 1
+                }]} onPress={() => {
+                  navigation.push('AdminAddUser')
+                }}>
+                  <View>
+                    <Text style={styles.web_usernameText}>Adicionar Utilizador</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             }
           </ScrollView>
         </View>
@@ -358,7 +372,7 @@ function AdminAddUser() {
               })
               setTimeout(Restart(), 50);
             }
-            
+
 
           }}>
             <View>
